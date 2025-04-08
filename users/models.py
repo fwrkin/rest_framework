@@ -44,11 +44,10 @@ class User(AbstractUser):
         return self.email
 
 
-
 class Payments(models.Model):
     PAYMENT_METHODS = [
-        ('cash', 'Наличные'),
-        ('transfer', 'Перевод на счет'),
+        ("cash", "Наличные"),
+        ("transfer", "Перевод на счет"),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -58,9 +57,8 @@ class Payments(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
 
-
     def __str__(self):
-        return f'{self.user} - {self.course}|{self.lesson}, {self.amount} {self.payment_date}'
+        return f"{self.user} - {self.course}|{self.lesson}, {self.amount} {self.payment_date}"
 
     class Meta:
         verbose_name = "Платёж"

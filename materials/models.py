@@ -25,8 +25,10 @@ class Course(models.Model):
     owner = models.ForeignKey(
         AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        verbose_name="Владелец курса", blank=True,
-        null=True)
+        verbose_name="Владелец курса",
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         verbose_name = "Курс"
