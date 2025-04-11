@@ -9,6 +9,7 @@ from users.views import PaymentsViewSet, UserCreateAPIView
 
 app_name = UsersConfig.name
 
+
 urlpatterns = [
     path("register/", UserCreateAPIView.as_view(), name="register"),
     path(
