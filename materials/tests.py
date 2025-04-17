@@ -9,44 +9,38 @@ from users.models import User
 class LessonTestCase(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create(email='admin@sky.com')
-        self.course = Course.objects.create(title='Python course', description='Python course jun', owner=self.user)
-        self.lesson = Lesson.objects.create(title='Python lesson', description='Python lesson decorators',
-                                            course=self.course, owner=self.user)
+        self.user = User.objects.create(email="admin@sky.com")
+        self.course = Course.objects.create(
+            title="Python course", description="Python course jun", owner=self.user
+        )
+        self.lesson = Lesson.objects.create(
+            title="Python lesson",
+            description="Python lesson decorators",
+            course=self.course,
+            owner=self.user,
+        )
         self.client.force_authenticate(user=self.user)
 
     def test_lesson_create(self):
-        self.assertEqual(
-            Lesson.objects.all().count(), 1
-        )
+        self.assertEqual(Lesson.objects.all().count(), 1)
 
     def test_lesson_update(self):
-        url = reverse('materials:lessons_update', args=(self.lesson.pk,))
-        data = {
-            'title': 'Python'
-        }
+        url = reverse("materials:lessons_update", args=(self.lesson.pk,))
+        data = {"title": "Python"}
         response = self.client.patch(url, data)
         data = response.json()
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            data.get('title'), 'Python'
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data.get("title"), "Python")
 
     def test_lesson_delete(self):
-        url = reverse('materials:lessons_delete', args=(self.lesson.pk,))
+        url = reverse("materials:lessons_delete", args=(self.lesson.pk,))
 
         response = self.client.delete(url)
-        self.assertEqual(
-            response.status_code, status.HTTP_204_NO_CONTENT
-        )
-        self.assertEqual(
-            Lesson.objects.all().count(), 0
-        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Lesson.objects.all().count(), 0)
 
     def test_lesson_list(self):
-        url = reverse('materials:lessons_list')
+        url = reverse("materials:lessons_list")
         response = self.client.get(url)
         data = response.json()
         result = {
@@ -59,58 +53,58 @@ class LessonTestCase(APITestCase):
                     "title": self.lesson.title,
                     "description": self.lesson.description,
                     "image": None,
-                    "link": '',
+                    "link": "",
                     "owner": self.user.pk,
-                    "course": self.course.pk
-                }]}
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            data, result
-        )
+                    "course": self.course.pk,
+                }
+            ],
+        }
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data, result)
 
 
 class SubscriptionTestCase(APITestCase):
     def setUp(self):
-        self.user = User.objects.create(email='admin@sky.com')
-        self.course = Course.objects.create(title='Python course', description='Python course jun', owner=self.user)
-        self.lesson = Lesson.objects.create(title='Python lesson', description='Python lesson decorators',
-                                            course=self.course, owner=self.user)
+        self.user = User.objects.create(email="admin@sky.com")
+        self.course = Course.objects.create(
+            title="Python course", description="Python course jun", owner=self.user
+        )
+        self.lesson = Lesson.objects.create(
+            title="Python lesson",
+            description="Python lesson decorators",
+            course=self.course,
+            owner=self.user,
+        )
         self.client.force_authenticate(user=self.user)
 
     def test_subscription_create(self):
-        url = reverse('materials:course_subscription')
+        url = reverse("materials:course_subscription")
         data = {
-            'user': self.user.pk,
-            'course': self.course.pk,
-            'lesson': self.lesson.pk
+            "user": self.user.pk,
+            "course": self.course.pk,
+            "lesson": self.lesson.pk,
         }
         response = self.client.post(url, data)
 
         data = response.json()
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            data, {'message': 'Подписка добавлена'}
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data, {"message": "Подписка добавлена"})
 
     def test_subscription_delete(self):
-        self.subscription = Subscription.objects.create(user=self.user, course=self.course, lesson=self.lesson,
-                                                        sign_of_subscription=True)
-        url = reverse('materials:course_subscription')
+        self.subscription = Subscription.objects.create(
+            user=self.user,
+            course=self.course,
+            lesson=self.lesson,
+            sign_of_subscription=True,
+        )
+        url = reverse("materials:course_subscription")
         data = {
-            'user': self.user.pk,
-            'course': self.course.pk,
-            'lesson': self.lesson.pk
+            "user": self.user.pk,
+            "course": self.course.pk,
+            "lesson": self.lesson.pk,
         }
         response = self.client.post(url, data)
-        
+
         data = response.json()
-        self.assertEqual(
-            response.status_code, status.HTTP_200_OK
-        )
-        self.assertEqual(
-            data, {'message': 'Подписка удалена'}
-        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data, {"message": "Подписка удалена"})
