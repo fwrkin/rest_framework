@@ -1,7 +1,6 @@
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
-
 from materials.models import Course, Lesson, Subscription
 from materials.validators import LinkValidator
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 
 class LessonSerializer(ModelSerializer):

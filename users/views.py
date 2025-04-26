@@ -1,20 +1,12 @@
 from rest_framework import filters, generics, viewsets
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     RetrieveAPIView, UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
-from rest_framework.generics import (
-    RetrieveAPIView,
-    UpdateAPIView,
-    DestroyAPIView,
-    CreateAPIView,
-)
-from users.permissions import IsOwner
 from users.models import Payments, User
+from users.permissions import IsOwner
 from users.serializers import PaymentsSerializer, UserSerializer
-from users.services import (
-    create_stripe_product,
-    create_stripe_price,
-    create_stripe_session,
-)
+from users.services import (create_stripe_price, create_stripe_product,
+                            create_stripe_session)
 
 
 class UserCreateAPIView(generics.CreateAPIView):

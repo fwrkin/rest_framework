@@ -1,22 +1,14 @@
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-    get_object_or_404,
-)
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
 from materials.models import Course, Lesson, Subscription
 from materials.paginations import CustomPagination
-from materials.serializers import (
-    CourseSerializer,
-    LessonSerializer,
-    SubscriptionSerializer,
-)
+from materials.serializers import (CourseSerializer, LessonSerializer,
+                                   SubscriptionSerializer)
+from materials.tasks import course_update_materials
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView, get_object_or_404)
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from users.permissions import IsModer, IsOwner
 
 
@@ -42,6 +34,11 @@ class CourseViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        course_update_materials.delay(instance.pk)
+        return instance
 
 
 class LessonCreateAPIView(CreateAPIView):
