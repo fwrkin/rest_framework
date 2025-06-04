@@ -41,14 +41,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Clean server directory
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          rm -rf ${{ secrets.DEPLOY_DIR }}/*
-          EOF
-
-
-
       - name: Apply migrations on server
         env:
           TEST_ENV: ''
