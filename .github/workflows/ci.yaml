@@ -41,43 +41,19 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-
-      - name: Add known hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          
-
-      - name: Copy files to server via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "."
-          target: ${{ secrets.DEPLOY_DIR }}
-
-      - name: Apply migrations on server
+      - name: Clean server directory
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          echo "Before cd, current directory:"
-          pwd
-          ls -la
-          cd ${{ secrets.DEPLOY_DIR }}
-          echo "After cd, current directory:"
-          pwd
-          ls -la
-          export POSTGRES_USER=postgres
-          export POSTGRES_PASSWORD=simplepassword123
-          export POSTGRES_DB=drf-hw
-          export SECRET_KEY='${{ secrets.SECRET_KEY }}'
-          docker-compose down --remove-orphans
-          docker-compose up -d --build
-          docker-compose exec web python manage.py migrate --noinput
+          rm -rf ${{ secrets.DEPLOY_DIR }}/*
           EOF
 
-      - name: Collect static files on server
+      - name: Copy project files to server
         run: |
+          echo "Listing files in GitHub Actions runner before rsync:"
+          ls -la
+          rsync -avzr -e "ssh -o StrictHostKeyChecking=no" --exclude '__pycache__' --exclude '.git' --exclude '.gitignore' --exclude '.env.sample' ./ ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.DEPLOY_DIR }}
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-          cd ${{ secrets.DEPLOY_DIR }}
-          docker-compose exec web python manage.py collectstatic --noinput
+          echo "After rsync, listing contents of ${{ secrets.DEPLOY_DIR }}:"
+          ls -la ${{ secrets.DEPLOY_DIR }}
+          ls -la ${{ secrets.DEPLOY_DIR }}/config 2>/dev/null || echo "config directory not found"
           EOF
