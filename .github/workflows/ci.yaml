@@ -41,6 +41,12 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
+
+      - name: Add known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          
+
       - name: Copy files to server via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
